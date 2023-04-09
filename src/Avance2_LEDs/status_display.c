@@ -84,26 +84,26 @@ int main() {
             if(button0){
                 if(count0<8){
                     count0++; // Increment count 0 by 1 while is within the range
-                    PORTA |= (1 << PA0);
+                    PORTA |= (1 << PA0); // Turns ON LED0
                 }
                 else{
                     PORTB=0b00111111; // If the button is not pressed displays 0
-                    count0 = 0;
+                    count0 = 0; 
                     
-                    PORTA &= ~(1 << PA0);
-                    counting_enabled = 0;
+                    PORTA &= ~(1 << PA0); //Turns OFF LED0
+                    counting_enabled = 0; //When pass the threshold disenable the count, to be able to start again
                 }
             }
             else if(button1){
                 if(count1 < 7){
                     count1++; // Increment count 1 by 1 while is within the range
-                    PORTA |= (1 << PA1);
+                    PORTA |= (1 << PA1); //Turns ON LED1
                 }
                 else{
                     PORTB=0b00111111;
                     count1 = 0;
                     
-                    PORTA &= ~(1 << PA1);
+                    PORTA &= ~(1 << PA1); //Turns OFF LED1
                     counting_enabled = 0; //When pass the threshold disenable the count, to be able to start again
                 }
             }
@@ -112,7 +112,7 @@ int main() {
                 //PORTA &= ~(1 << PA1);
                 //PORTA &= ~(1 << PA0);
             }        
-            _delay_ms(1000);
+            _delay_ms(1000); //Delays 1 second
         }
     }
 }
