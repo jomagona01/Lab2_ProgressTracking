@@ -35,6 +35,7 @@ int main() {
     //PORTD = 0x03; // Enable pull-up resistors on PD0 and PD1
     PORTD |= (1 << PD2) | (1 << PD3); // Enable pull-up resistor for PD2 (INT0) and PD3 (INT1)
     DDRA = 0XFF;
+    DDRD |= (1 << DDD0) | (1 << DDD1); //Set D0 and D1 as outputs
 
 
     // Set up interrupts
@@ -85,12 +86,14 @@ int main() {
                 if(count0<8){
                     count0++; // Increment count 0 by 1 while is within the range
                     PORTA |= (1 << PA0); // Turns ON LED0
+                    PORTD |= (1 << PD0); //Turns ON LED3
                 }
                 else{
                     PORTB=0b00111111; // If the button is not pressed displays 0
                     count0 = 0; 
                     
                     PORTA &= ~(1 << PA0); //Turns OFF LED0
+                    PORTD &= ~(1 << PD0); //Turns OFF LED3
                     counting_enabled = 0; //When pass the threshold disenable the count, to be able to start again
                 }
             }
@@ -98,12 +101,14 @@ int main() {
                 if(count1 < 7){
                     count1++; // Increment count 1 by 1 while is within the range
                     PORTA |= (1 << PA1); //Turns ON LED1
+                    PORTD |= (1 << PD1); //Turns ON LED2
                 }
                 else{
                     PORTB=0b00111111;
                     count1 = 0;
                     
                     PORTA &= ~(1 << PA1); //Turns OFF LED1
+                    PORTD &= ~(1 << PD1); //Turns OFF LED2
                     counting_enabled = 0; //When pass the threshold disenable the count, to be able to start again
                 }
             }
