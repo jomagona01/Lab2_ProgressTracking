@@ -30,7 +30,6 @@ ISR(INT1_vect){
 
 int main() {
     // Set up ports
-    
     DDRB = 0xFF; // Set PORTB as output
     DDRD = 0x00; // Set PORTD as intput
     //PORTD = 0x03; // Enable pull-up resistors on PD0 and PD1
@@ -84,15 +83,15 @@ int main() {
             }
             if(button0){
                 if(count0<10){
-                    count0++; // Increment count by 1
+                    count0++; // Increment count 0 by 1 while is within the range
                 }
                 else{
-                    PORTB=0;
+                    PORTB=0; // If the button is not pressed displays 0
                 }
             }
             else if(button1){
                 if(count1 < 7){
-                    count1++;
+                    count1++; // Increment count 1 by 1 while is within the range
                 }
                 else{
                     PORTB=0;
