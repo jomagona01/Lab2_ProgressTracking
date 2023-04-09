@@ -47,7 +47,7 @@ int main() {
     while (1) {
         // Display the count value on the 7-segment display
         if(counting_enabled){
-            switch(count0 | count1)
+            switch(count1 | count0)
             {   
                 case 0:
                 PORTB = 0b00111111;
@@ -78,15 +78,17 @@ int main() {
                 break;
                 case 9:
                 PORTB = 0b01101111;
-                counting_enabled = 0; // Disable counting when count reaches 9
+                //counting_enabled = 0; // Disable counting when count reaches 9
                 break;
             }
             if(button0){
-                if(count0<10){
+                if(count0<8){
                     count0++; // Increment count 0 by 1 while is within the range
                 }
                 else{
-                    PORTB=0; // If the button is not pressed displays 0
+                    PORTB=0b00111111; // If the button is not pressed displays 0
+                    count0 = 0;
+                    counting_enabled = 0;
                 }
             }
             else if(button1){
@@ -94,9 +96,14 @@ int main() {
                     count1++; // Increment count 1 by 1 while is within the range
                 }
                 else{
-                    PORTB=0;
+                    PORTB=0b00111111;
+                    count1 = 0;
+                    counting_enabled = 0; //When pass the threshold disenable the count, to be able to start again
                 }
-            }            
+            }
+            else{
+                PORTB=0b00111111;
+            }        
             _delay_ms(1000);
         }
     }
