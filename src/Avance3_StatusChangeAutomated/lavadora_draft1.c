@@ -4,12 +4,16 @@
 
 volatile uint8_t count0 = 0;
 volatile uint8_t count01 = 0;
+volatile uint8_t count02 = 0;
+volatile uint8_t count03 = 0;
 volatile uint8_t count1 = 0;
 volatile uint8_t button0 = 0;
 volatile uint8_t button1 = 0;
 volatile uint8_t counting_enabled0 = 0;
 volatile uint8_t counting_enabled01 = 0;
-volatile uint8_t flag = 0;
+volatile uint8_t flag0 = 0;
+volatile uint8_t flag1 = 0;
+volatile uint8_t flag_finish = 0;
 
 
 ISR(INT0_vect){
@@ -19,6 +23,7 @@ ISR(INT0_vect){
         _delay_ms(50);
         count0=0;
         count01=0;
+        count02=0;
         button0=1;
     }
 }
@@ -52,8 +57,8 @@ int main() {
 
     while (1) {
         // Display the count value on the 7-segment display
-        if(counting_enabled0 | counting_enabled01){
-            switch(count1 | count0 | count01)
+        if(counting_enabled0){
+            switch(count0 | count01 | count02 | count03)
             {   
                 case 0:
                 PORTB = 0b00111111;
@@ -87,36 +92,63 @@ int main() {
                 //counting_enabled = 0; // Disable counting when count reaches 9
                 break;
             }
-            if(button0){
-                if(count0<5 && flag == 0){
+            if(button0){ // When press button 0
+                if(count0<4 && flag0 == 0 && flag1 == 0){ 
                     count0++; // Increment count 0 by 1 while is within the range
                     PORTA |= (1 << PA0); // Turns ON LED0
-                    //PORTD |= (1 << PD0); //Turns ON LED3
-                    flag = 0;
+                    flag0 = 0; //When is within the first range flag is in 0
+                    flag1 = 0;
                 }
                 else{
-                    //counting_enabled0 = 0;
-                    //PORTB=0b00111111; // If the button is not pressed displays 0
-                    flag = 1;
+                    flag0 = 1; // If it reaches the boundary of first range sets the flag
+                    flag1 = 0;
                     count0 = 0; 
-                    //count01++;
+                    PORTA &= ~(1 << PA0); //Turns OFF LED0 to indicates first state is done
                     
-                    PORTA &= ~(1 << PA0); //Turns OFF LED0
-                    
-                    //PORTD &= ~(1 << PD0); // OFF LED3
-                    //counting_enabled0 = 0; //When pass the threshold disenable the count, to be able to start again
-                    //count01 = 0;
-                    if(count01 < 6 && flag == 1){
-                        //counting_enabled01 = 1;
+
+                    if(count01 < 10 && flag0 == 1 && flag1 == 0 && count02 == 0 && count03 == 0){ // Starts the count for the second state
                         count01++;
-                        PORTA |= (1 << PA1); //Turns ON LED1
-                        //count0 = 9;
+                        PORTA |= (1 << PA1); //Turns ON LED1 while is within the second range
+                        flag0 = 1;
+                        flag1 = 0;
                     }
                     else{
-                        PORTB=0b00111111; // If the button is not pressed displays 0
                         PORTA &= ~(1 << PA1); //Turns OFF LED1
-                        
-                        count0 = 0;
+                        //
+                        flag0 = 0;
+                        flag1 = 1;
+                        //count01 = 0;
+                        //PORTB=0b00111111; // If the count recahes the boundary set 0 in the display
+                        if(count02 <= 6 && flag0 == 0 && flag1 == 1 && flag_finish == 0 && count03 == 0){
+                            count02++;
+                            PORTD |= (1 << PD1); //Turns ON LED2
+                            flag1 = 1;
+                            flag0 = 0;
+                            count01 = 0;
+                            //PORTA &= ~(1 << PA1); //Turns OFF LED1
+                        }
+                        else{
+                            //count02 = 0;
+                            PORTA &= ~(1 << PA1); //Turns OFF LED1
+                            flag0 = 1;
+                            flag1 = 1;
+                            flag_finish = 1;
+                            PORTD &= ~(1 << PD1); //Turns OFF LED2
+                            
+                            if(count03 <= 9 && flag0 == 1 && flag1 == 1 && flag_finish == 1){
+                                count03++;
+                                PORTD |= (1 << PD0); //Turns ON LED3
+                                flag0 = 1;
+                                flag1 = 1;
+                                count02 = 0;
+                                
+                                }
+                            else{
+                                PORTB=0b00111111;
+                                PORTD &= ~(1 << PD0); //Turns OFF LED3
+                                counting_enabled0 = 0;
+                            }
+                        }    
                     }
                       
                 }
@@ -140,6 +172,7 @@ int main() {
             }
             else{
                 PORTB=0b00111111;
+                counting_enabled0 = 0;
                 //PORTA &= ~(1 << PA1);
                 //PORTA &= ~(1 << PA0);
             }        
