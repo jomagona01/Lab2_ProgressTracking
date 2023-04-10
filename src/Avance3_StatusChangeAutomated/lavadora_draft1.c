@@ -103,7 +103,7 @@ int main() {
                     
                     PORTA &= ~(1 << PA0); //Turns OFF LED0
                     
-                    //PORTD &= ~(1 << PD0); //Turns OFF LED3
+                    //PORTD &= ~(1 << PD0); // OFF LED3
                     //counting_enabled0 = 0; //When pass the threshold disenable the count, to be able to start again
                     //count01 = 0;
                     if(count01 < 6 && flag == 1){
