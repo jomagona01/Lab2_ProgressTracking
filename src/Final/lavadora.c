@@ -35,9 +35,9 @@ ISR(INT1_vect){
         counting_enabled = 1;
         button1=1;
     }
-    /*else{
+    else{
         counting_enabled = 0; //If the button is pressed, press again to pause the count
-    }*/
+    }
 }
 
 ISR(PCINT2_vect){
@@ -46,10 +46,10 @@ ISR(PCINT2_vect){
         flag_prueba=1;
         button2=1;
     }
-    else if(counting_enabled && flag_prueba){
+    /*else if(counting_enabled && flag_prueba){
         counting_enabled = 0;
         flag_prueba = 0;
-    }
+    }*/
 }
 
 
@@ -81,7 +81,7 @@ int main() {
     TCCR0A = 0;    // Set Timer0 in normal mode 
     TCCR0B |= (1 << CS02) | (1 << CS00); // Set prescaler at 1024
     OCR0A = 78; //Set OCR0A register value for an interrupt each 1 second
-
+    PORTB &= ~(1 << PB7);
 
 
     //Enables the Timer0 interrupt by comparison
@@ -127,6 +127,9 @@ int main() {
                 case 9:
                 PORTB = 0b01101111;
                 break;
+                case 10:
+                PORTB = 0b00111111;
+                break;
             }
 
             //Asks if is more than a second to repeat the iteration
@@ -134,36 +137,46 @@ int main() {
 
                 // Boton nivel de carga alto
                 if(button0){ // When press button 0
+                    PORTB &= ~(1 << PB7);
                     if(count0<3 && state_bit0 == 0 && state_bit1 == 0){ 
                         count0++; // Increment count 0 by 1 while is within the range
                         PORTA |= (1 << PA0); // Turns ON LED0
                         state_bit0 = 0; //'Suministro' state flags
                         state_bit1 = 0;
+                        
                     }
                     else{
                         state_bit0 = 1; //'Lavado' state flags
                         state_bit1 = 0;
                         count0 = 0; 
                         PORTA &= ~(1 << PA0); //Turns OFF LED0
+                        PORTB &= ~(1 << PB7); //Keeps second display in 0
                         
 
-                        if(count1 < 10 && state_bit0 == 1 && state_bit1 == 0 && count2 == 0 && count3 == 0){ // Starts the count for the second state
+                        if(count1 < 11 && state_bit0 == 1 && state_bit1 == 0 && count2 == 0 && count3 == 0){ // Starts the count for the second state
                             count1++;
                             PORTA |= (1 << PA1); //Turns ON LED1 
                             state_bit0 = 1; //'Lavado' state flags
                             state_bit1 = 0;
+                            while(count1==10){
+                                PORTB = 0b00111111; //Displays 0 in first display
+                                PORTB |= (1 << PB7); // When the count reaches ten, displays number 1 in second display
+                                count1++; // Increase the count to get out of the while
+                            }
                         }
                         else{
                             PORTA &= ~(1 << PA1); //Turns OFF LED1
                             state_bit0 = 0;//'Enjuagado' state flags
                             state_bit1 = 1;
                             count1 = 0;
+                            PORTB &= (1 << PB7);
                             if(count2 < 5 && state_bit0 == 0 && state_bit1 == 1 && flag_finish == 0 && count3 == 0){
                                 count2++;
                                 PORTD |= (1 << PD1); //Turns ON LED2
                                 state_bit1 = 1;// 'Enjuagado' state flags
                                 state_bit0 = 0;
                                 count1 = 0;
+                                PORTB &= ~(1 << PB7);
                             }
                             else{
                                 count2 = 0;
@@ -172,6 +185,7 @@ int main() {
                                 state_bit1 = 1;
                                 flag_finish = 1;
                                 PORTD &= ~(1 << PD1); //Turns OFF LED2
+                                PORTB &= ~(1 << PB7);
                                 
                                 if(count3 < 9 && state_bit0 == 1 && state_bit1 == 1 && flag_finish == 1){
                                     count3++;
